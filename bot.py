@@ -1,8 +1,7 @@
 import urllib.request
 import random
-import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ⚠️ PEGA AQUÍ TU ENLACE REAL:
 ENLACE = "https://nintendoproject.com/redir/?ref=erdigos"
 
 navegadores = [
@@ -12,24 +11,34 @@ navegadores = [
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1"
 ]
 
-def simular_visita():
+def simular_visita(numero):
     user_agent = random.choice(navegadores)
     req = urllib.request.Request(
         ENLACE, 
         headers={
             'User-Agent': user_agent,
-            'Accept-Language': 'es-ES,es;q=0.9'
+            'Accept-Language': 'es-ES,es;q=0.9',
+            'Connection': 'close'
         }
     )
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
-            print(f"[Éxito] Visita enviada.")
+        with urllib.request.urlopen(req, timeout=4) as response:
+            return f"[{numero}] OK ({response.status})"
     except Exception as e:
-        print(f"[Error]: {e}")
+        return f"[{numero}] Error: {e}"
+
+def main():
+    # Número total de peticiones masivas en esta ejecución única
+    TOTAL_PETICIONES = 500  
+    # Hilos simultáneos (dispara 50 peticiones a la vez en paralelo)
+    HILOS_CONCURRENTES = 50 
+
+    print(f"[*] Lanzando {TOTAL_PETICIONES} visitas con {HILOS_CONCURRENTES} hilos simultáneos...")
+    
+    with ThreadPoolExecutor(max_workers=HILOS_CONCURRENTES) as executor:
+        futures = [executor.submit(simular_visita, i) for i in range(1, TOTAL_PETICIONES + 1)]
+        for future in as_completed(futures):
+            print(future.result())
 
 if __name__ == "__main__":
-    for i in range(2):
-        print(f"Enviando usuario ficticio #{i+1}...")
-        simular_visita()
-        if i == 0:
-            time.sleep(1)
+    main()
