@@ -1,14 +1,16 @@
-name: Bot Multi-IP Masivo
+name: Bot Multi-IP Masivo y Continuo
 
 on:
   workflow_dispatch:
+
+permissions:
+  actions: write
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Esto lanza 10 servidores independientes en paralelo al mismo tiempo (10 IPs distintas)
         instancia: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - name: Checkout repositorio
@@ -21,3 +23,10 @@ jobs:
 
       - name: Ejecutar Bot
         run: python bot.py
+
+      - name: Recargar automáticamente al terminar
+        if: matrix.instancia == 1
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Bot Multi-IP Masivo y Continuo
+          token: ${{ secrets.GITHUB_TOKEN }}
