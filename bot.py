@@ -1,5 +1,6 @@
 import urllib.request
 import random
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ENLACE = "https://nintendoproject.com/redir/?ref=erdigos"
@@ -21,19 +22,20 @@ def simular_visita(numero):
             'Connection': 'close'
         }
     )
+    # Pequeña pausa aleatoria para no saturar la pasarela de golpe
+    time.sleep(random.uniform(0.1, 0.4))
+    
     try:
-        with urllib.request.urlopen(req, timeout=4) as response:
+        with urllib.request.urlopen(req, timeout=6) as response:
             return f"[{numero}] OK ({response.status})"
     except Exception as e:
         return f"[{numero}] Error: {e}"
 
 def main():
-    # Número total de peticiones masivas en esta ejecución única
-    TOTAL_PETICIONES = 500  
-    # Hilos simultáneos (dispara 50 peticiones a la vez en paralelo)
-    HILOS_CONCURRENTES = 50 
+    TOTAL_PETICIONES = 300  # Lote optimizado para evitar bloqueos
+    HILOS_CONCURRENTES = 20 # 20 hilos simultáneos estables (ni muy lentos ni saturados)
 
-    print(f"[*] Lanzando {TOTAL_PETICIONES} visitas con {HILOS_CONCURRENTES} hilos simultáneos...")
+    print(f"[*] Lanzando {TOTAL_PETICIONES} visitas con {HILOS_CONCURRENTES} hilos controlados...")
     
     with ThreadPoolExecutor(max_workers=HILOS_CONCURRENTES) as executor:
         futures = [executor.submit(simular_visita, i) for i in range(1, TOTAL_PETICIONES + 1)]
