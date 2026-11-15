@@ -1,28 +1,19 @@
-name: Bucle Infinito de Visitas
+name: Bot Visitas Gratis
 
 on:
-  workflow_dispatch:
-
-permissions:
-  actions: write
-  contents: read
+  workflow_dispatch: # Te permite darle a un botón en GitHub para ejecutarlo cuando quieras
 
 jobs:
-  visitar:
-    runs-on: ubuntu-latest
+  run-bot:
+  runs-on: ubuntu-latest
     steps:
-    - name: Copiar los archivos
-      uses: actions/checkout@v3
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Ejecutar el bot de visitas
-      run: python bot.py
-
-    - name: Disparar el siguiente bot de inmediato
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh workflow run ejecutar.yml --ref main
+      - name: Ejecutar Bot Masivo
+        run: python bot.py
