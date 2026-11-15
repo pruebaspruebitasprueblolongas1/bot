@@ -1,4 +1,4 @@
-name: Bot Visitas Gratis
+name: Bot Visitas Continuo
 
 on:
   workflow_dispatch:
@@ -17,3 +17,9 @@ jobs:
 
       - name: Ejecutar Bot Masivo
         run: python bot.py
+
+      - name: Recargar automáticamente al terminar
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Bot Visitas Continuo
+          token: ${{ secrets.GITHUB_TOKEN }}
